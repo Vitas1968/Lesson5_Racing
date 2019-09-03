@@ -8,15 +8,17 @@ public class RaceMain
 {
     public static final int CARS_COUNT = 4;
     public static void main(String[] args) {
-        // запускаем потоки через ExecutorService
+
+        //используем  Semaphore для доступа половины участников в тоннель
         Semaphore sem=new Semaphore(CARS_COUNT/2);
+        // запускаем потоки через ExecutorService
         ExecutorService executorService= Executors.newFixedThreadPool(4);
         System.out.println("ВАЖНОЕ ОБЪЯВЛЕНИЕ >>> Подготовка!!!");
         Race race = new Race(new Road(60), new Tunnel(), new Road(40));
         Car[] cars = new Car[CARS_COUNT];
         for (int i = 0; i < cars.length; i++)
         {
-            cars[i] = new Car(race, 20 + (int) (Math.random() * 10));
+            cars[i] = new Car(race, 20 + (int) (Math.random() * 10),sem);
             executorService.execute( cars[i]);
         }
         executorService.shutdown();
@@ -33,7 +35,8 @@ public class RaceMain
     static {
         CARS_COUNT = 0;
     }
-    
+    // добавляем ссылку на семафор в поток
+    private Semaphore semaphore;
     private Race race;
     private int speed;
     private String name;
@@ -43,9 +46,10 @@ public class RaceMain
     public int getSpeed() {
         return speed;
     }
-    public Car(Race race, int speed) {
+    public Car(Race race, int speed, Semaphore semaphore) {
         this.race = race;
         this.speed = speed;
+        this.semaphore=semaphore;
         CARS_COUNT++;
         this.name = "Участник #" + CARS_COUNT;
     }
