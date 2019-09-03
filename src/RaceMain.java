@@ -64,7 +64,7 @@ public class RaceMain
             e.printStackTrace();
         }
         for (int i = 0; i < race.getStages().size(); i++) {
-            if (i==1) // индекс 1 - объект туннель
+            if (race.getStages().get(i) instanceof Tunnel) 
             { try
                 {
                     System.out.println(name + " ожидает разрешение на въезд в туннель");
