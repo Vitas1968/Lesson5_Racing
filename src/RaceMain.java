@@ -2,12 +2,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Semaphore;
 
 public class RaceMain
 {
     public static final int CARS_COUNT = 4;
     public static void main(String[] args) {
         // запускаем потоки через ExecutorService
+        Semaphore sem=new Semaphore(CARS_COUNT/2);
         ExecutorService executorService= Executors.newFixedThreadPool(4);
         System.out.println("ВАЖНОЕ ОБЪЯВЛЕНИЕ >>> Подготовка!!!");
         Race race = new Race(new Road(60), new Tunnel(), new Road(40));
@@ -31,6 +33,7 @@ public class RaceMain
     static {
         CARS_COUNT = 0;
     }
+    
     private Race race;
     private int speed;
     private String name;
