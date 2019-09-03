@@ -10,7 +10,7 @@ public class RaceMain
     public static void main(String[] args) {
 
         //используем  Semaphore для доступа половины участников в тоннель
-        Semaphore sem=new Semaphore(CARS_COUNT/2);
+        Semaphore sem=new Semaphore(CARS_COUNT/2,true);
         // запускаем потоки через ExecutorService
         ExecutorService executorService= Executors.newFixedThreadPool(4);
         System.out.println("ВАЖНОЕ ОБЪЯВЛЕНИЕ >>> Подготовка!!!");
@@ -56,15 +56,29 @@ public class RaceMain
     @Override
     public void run() {
         try {
+
             System.out.println(this.name + " готовится");
             Thread.sleep(500 + (int)(Math.random() * 800));
             System.out.println(this.name + " готов");
-        } catch (Exception e) {
+        } catch (InterruptedException e) {
             e.printStackTrace();
         }
         for (int i = 0; i < race.getStages().size(); i++) {
-            race.getStages().get(i).go(this);
+            if (i==1) // индекс 1 - объект туннель
+            { try
+                {
+                    System.out.println(name + " ожидает разрешение на въезд в туннель");
+                    semaphore.acquire(); // запрос разрешения у семафора
+                } catch (InterruptedException e)
+                {
+                    e.printStackTrace();
+                }
+                System.out.println(name+" въезжает в туннель");
+                race.getStages().get(i).go(this);
+            }
         }
+        System.out.println(name + " освобождает разрешение на въезд в туннель");
+        semaphore.release();
     }
 }
  abstract class Stage {
@@ -100,7 +114,7 @@ public class RaceMain
     public void go(Car c) {
         try {
             try {
-                System.out.println(c.getName() + " готовится к этапу(ждет): " + description);
+               // System.out.println(c.getName() + " готовится к этапу(ждет): " + description);
                 System.out.println(c.getName() + " начал этап: " + description);
                 Thread.sleep(length / c.getSpeed() * 1000);
             } catch (InterruptedException e) {
