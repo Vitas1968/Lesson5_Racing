@@ -5,8 +5,8 @@ import java.util.concurrent.*;
 public class RaceMain
 {
     public static final int CARS_COUNT = 4;
-    public static void main(String[] args) {
-
+    public static void main(String[] args)
+    {
         //используем  Semaphore для доступа половины участников в тоннель
         Semaphore sem=new Semaphore(CARS_COUNT/2,true);
         // запускаем потоки через ExecutorService
@@ -14,7 +14,6 @@ public class RaceMain
         // используем CyclicBarrier для синхронизации потоков на старте и финише
         CyclicBarrier start=new CyclicBarrier(CARS_COUNT+1);
         CyclicBarrier finish=new CyclicBarrier(CARS_COUNT+1);
-
         System.out.println("ВАЖНОЕ ОБЪЯВЛЕНИЕ >>> Подготовка!!!");
         Race race = new Race(new Road(60), new Tunnel(), new Road(40));
         Car[] cars = new Car[CARS_COUNT];
@@ -34,10 +33,6 @@ public class RaceMain
         {
             e.printStackTrace();
         }
-//        for (int i = 0; i < cars.length; i++)
-//        {
-//            new Thread(cars[i]).start();
-//        }
         System.out.println("ВАЖНОЕ ОБЪЯВЛЕНИЕ >>> Гонка началась!!!");
         try
         {
@@ -64,6 +59,7 @@ public class RaceMain
     private Race race;
     private int speed;
     private String name;
+    private static volatile boolean win =true;
     public String getName() {
         return name;
     }
@@ -82,7 +78,6 @@ public class RaceMain
     @Override
     public void run() {
         try {
-
             System.out.println(this.name + " готовится");
             Thread.sleep(500 + (int)(Math.random() * 800));
             System.out.println(this.name + " готов");
@@ -118,10 +113,13 @@ public class RaceMain
 
             } else race.getStages().get(i).go(this);
         }
-
         try
         {
             System.out.println(name + " завершил дистанцию");
+            if (win){
+                System.out.println(name + " WIN!");
+                win=false;
+            }
             finish.await();
         } catch (InterruptedException e)
         {
