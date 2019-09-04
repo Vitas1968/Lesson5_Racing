@@ -1,5 +1,6 @@
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Semaphore;
@@ -13,6 +14,10 @@ public class RaceMain
         Semaphore sem=new Semaphore(CARS_COUNT/2,true);
         // запускаем потоки через ExecutorService
         ExecutorService executorService= Executors.newFixedThreadPool(4);
+        // используем CyclicBarrier для синхронизации потоков на старте и финише
+        CyclicBarrier start=new CyclicBarrier(CARS_COUNT);
+        CyclicBarrier finish=new CyclicBarrier(CARS_COUNT+1);
+
         System.out.println("ВАЖНОЕ ОБЪЯВЛЕНИЕ >>> Подготовка!!!");
         Race race = new Race(new Road(60), new Tunnel(), new Road(40));
         Car[] cars = new Car[CARS_COUNT];
@@ -64,7 +69,7 @@ public class RaceMain
             e.printStackTrace();
         }
         for (int i = 0; i < race.getStages().size(); i++) {
-            if (race.getStages().get(i) instanceof Tunnel) 
+            if (race.getStages().get(i) instanceof Tunnel)
             { try
                 {
                     System.out.println(name + " ожидает разрешение на въезд в туннель");
